@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sidekick</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+
+<body>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <h4 class="light">Sidekick</h4>
+            </div>
+        </div>
+        <ul class="collapsible">
+            <!-- Loop through your list of names -->
+            <li>
+                <div class="collapsible-header">Name 1</div>
+                <div class="collapsible-body">
+                    <!-- Elements inside collapsible section -->
+                    <button class="btn waves-effect waves-light" type="button" name="action">Button 1</button>
+                    <!-- Add more elements here if needed -->
+                </div>
+            </li>
+            <li>
+                <div class="collapsible-header">Name 2</div>
+                <div class="collapsible-body">
+                    <!-- Elements inside collapsible section -->
+                    <button class="btn waves-effect waves-light" type="button" name="action">Button 2</button>
+                    <!-- Add more elements here if needed -->
+                </div>
+            </li>
+            <!-- Add more <li> elements for additional names -->
+        </ul>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        // Initialize collapsible elements
+        document.addEventListener('DOMContentLoaded', function () {
+          const elems = document.querySelectorAll('.collapsible');
+          const instances = M.Collapsible.init(elems);
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    .container {
+      padding-top: 10px;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
+    .btn-floating {
+      margin-bottom: 10px;
+    }
+    .list-container {
+      border: 1px solid #ccc;
+      padding: 1px;
+      width: 270px;
+      overflow: auto;
+      white-space: nowrap;
+    }
+    .list-item {
+    }
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      width: 200px;
+      margin: 10px;
+    }
+    .btn {
+      margin: 5px
+    }
+    .switch {
+      margin: 5px
+    }
+
+    #validation-errorsw {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    #validation-errorsw li {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #please-wait {
+      display: none; /* Ensure it is hidden initially */
+      text-align: center;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div id="please-wait"> 
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-green-only">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div><div class="gap-patch">
+          <div class="circle"></div>
+        </div><div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+  <p>Please wait...</p>
+  </div>
+
+
+  <div class="row" id="content">
+    <div class="col s12">
+      <ul class="tabs">
+        <li class="tab col s3"><a href="#app-tab">App</a></li>
+        <li class="tab col s3"><a class="active" a href="#articles-tab">Articles</a></li>
+        <li class="tab col s3"><a href="#images-tab">Images</a></li>
+      </ul>
+    </div>
+
+    
+
+    <div id="app-tab">
+      <?!= include("appTab"); ?> 
+    </div>
+    <div id="images-tab" class="col s12">
+      <?!= include("imagesTab"); ?>
+    </div>
+    <div id="articles-tab" class="col s12">
+      <?!= include("articlesTab"); ?> 
+ 
+    </div>
+  </div>
+
+<!-- Materialize JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+
+  var articles = [];
+  var jsonObject = {};
+  var sections = ["test", "test2"];
+  var imageFolders = [];
+  var imagesAndNames = [];
+  var updateImages = false;
+
+  function showPleaseWait() {
+    document.getElementById('content').style.display = 'none';
+    document.getElementById('please-wait').style.display = 'block';
+  }
+
+  function hidePleaseWait() {
+    document.getElementById('please-wait').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+
+
+  // Initialize an empty array to store names
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tabs
+    var tabs = document.querySelectorAll('.tabs');
+    M.Tabs.init(tabs);
+
+    // Initialize collapsible elements
+    var collapsibles = document.querySelectorAll('.collapsible');
+    M.Collapsible.init(collapsibles);
+
+    var elems = document.querySelectorAll('.dropdown-trigger');
+    var instances = M.Dropdown.init(elems, {
+        // the dropdown is aligned to left
+        alignment: 'left',
+        // enabled for example to be visible
+        constrainWidth: false,
+      });
+
+  });
+
+
+  google.script.run.withSuccessHandler(function(json){
+    jsonObject = json;
+    if (json == -1){  //unable to get basic information
+      google.script.host.close();
+    } else {
+      google.script.run.withSuccessHandler(function(section_names) {
+        sections = section_names;
+        google.script.run.withSuccessHandler(function(article_names) {
+          articles = article_names;
+          generateCollapsibleArticles();
+        }).getArticleNamesFormDoc();
+      }).getSectionNames(jsonObject);
+      google.script.run.withSuccessHandler(function(folders){
+        imageFolders = folders;
+        populateImageFolders();
+      }).getImageFileLocations(jsonObject);
+    }
+  }).getJSON();
+
+</script>
+
+</body>
+</html>

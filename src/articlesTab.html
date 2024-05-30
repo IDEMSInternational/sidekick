@@ -1,0 +1,120 @@
+<div class="container">
+      <a href="#" class="btn-floating btn-large waves-effect waves-light" id="refresh-articles-button">
+      <i class="material-icons">refresh</i>
+    </a>
+        <ul class="collapsible">
+          <!-- Loop through your list of names -->
+          <!-- JavaScript will populate this list -->
+        </ul>
+      </div>
+
+
+<script>
+
+function createDropdownButton(label,dataTarget){
+  var dropdownTrigger = document.createElement('a');
+  dropdownTrigger.classList.add('dropdown-trigger', 'btn', 'waves-effect', 'waves-light');
+  dropdownTrigger.setAttribute('href', '#');
+  dropdownTrigger.setAttribute('data-target', dataTarget);
+  dropdownTrigger.textContent = label;
+  return dropdownTrigger;
+}
+
+function createDropdownList(id){
+  var dropdownList = document.createElement('ul');
+  dropdownList.id = id;
+  dropdownList.classList.add('dropdown-content');
+  dropdownList.setAttribute('tabindex', '0');
+  return dropdownList;
+}
+
+function addDropdownItem(dropdownList,label,callFunction,...callParams){
+    var item = document.createElement('li');
+    var link = document.createElement('a');
+    link.setAttribute('href', '#!');
+    link.textContent = label;
+    link.addEventListener('click', function() {
+      callFunction(...callParams);
+    });
+    item.appendChild(link);
+    dropdownList.appendChild(item);
+}
+
+function generateCollapsibleArticles() {
+  var collapsibleList = document.querySelector('.collapsible');
+  collapsibleList.innerHTML = '';
+  articles.forEach(function(article) {
+    var li = document.createElement('li');
+    var header = document.createElement('div');
+    header.classList.add('collapsible-header');
+    header.textContent = article;
+
+    var body = document.createElement('div');
+    body.classList.add('collapsible-body');
+
+
+    var addDropdownButton = createDropdownButton('Add Section','addDropdown-' + article);
+    var addDropdownList = createDropdownList('addDropdown-' + article);
+    sections.forEach(function(section) {
+      addDropdownItem(addDropdownList,section,addSection,section,article);
+    });
+    body.appendChild(addDropdownButton);
+    body.appendChild(addDropdownList);
+
+    var validateDropdownButton = createDropdownButton('Validate','validateDropdown-' + article);
+    var validateDropdownList = createDropdownList('validateDropdown-' + article);
+
+    addDropdownItem(validateDropdownList,'article fields',validateArticleFields,article);
+    addDropdownItem(validateDropdownList,'section fields',validateSections,article);
+
+    body.appendChild(validateDropdownButton);
+    body.appendChild(validateDropdownList);
+
+
+    // Append header and body to the list item
+    li.appendChild(header);
+    li.appendChild(body);
+
+    // Append the list item to the collapsible list
+    collapsibleList.appendChild(li);
+
+    var addDropdownInstance = M.Dropdown.init(addDropdownButton, {});
+    var validateDropdownInstance = M.Dropdown.init(validateDropdownButton, {});    
+  }); 
+}
+
+
+function validateArticleFields(articleName){
+  showPleaseWait();
+ // google.script.run.validateFieldsInArticle(articleName,articles,jsonObject,imagesAndNames,updateImages);
+
+
+  google.script.run.withSuccessHandler(function(){        
+    hidePleaseWait();
+  }).validateFieldsInArticle(articleName,articles,jsonObject,imagesAndNames,updateImages);
+}
+
+function validateSections(articleName){
+ // google.script.run.validateSectionsInArticleAndAdd("",articleName,articles,jsonObject,imagesAndNames,updateImages);
+  showPleaseWait();
+  google.script.run.withSuccessHandler(function(){        
+    hidePleaseWait();
+  }).validateSectionsInArticleAndAdd("",articleName,articles,jsonObject,imagesAndNames,updateImages);
+}
+
+function addSection(selectedValue, articleName) {
+  //google.script.run.validateSectionsInArticleAndAdd(selectedValue, articleName,articles,jsonObject,imagesAndNames,updateImages);
+  showPleaseWait();
+  google.script.run.withSuccessHandler(function(){        
+    hidePleaseWait();
+  }).validateSectionsInArticleAndAdd(selectedValue, articleName,articles,jsonObject,imagesAndNames,updateImages);
+}
+
+document.getElementById('refresh-articles-button').addEventListener('click', function(event) {
+  google.script.run.withSuccessHandler(function(article_names) {
+      articles = article_names;
+      generateCollapsibleArticles();
+    }).getArticleNamesFormDoc();
+});
+
+</script>

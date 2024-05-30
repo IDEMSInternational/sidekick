@@ -1,0 +1,102 @@
+<!-- appTab.html -->
+
+<div class="container">  
+  <div class="switch">
+    <label>
+      <input type="checkbox" id="update-images">
+      <span class="lever"></span>
+    </label>
+    Update images
+  </div>
+  <a class="waves-effect waves-light btn" id="validate-all">Validate All</a>
+  <a class="waves-effect waves-light btn" id="push-to-sheet">Push to Sheet</a>
+<!--  <a class="waves-effect waves-light btn" id="push-and-pr">Push and create PR</a>  -->
+  <p>Validation errors</p>
+  <div class="list-container">      
+    <ul id="validation-errors"></ul>
+  </div>  
+</div>
+
+
+<script>
+    // Function to populate the dynamic list
+    function populateImageFolders() {
+      var dynamicList = document.getElementById('validation-errors');
+      dynamicList.innerHTML = ''; 
+      imageFolders.forEach(function(item) {
+        var li = document.createElement('li');
+        li.textContent = item;
+        li.classList.add('list-item');
+        dynamicList.appendChild(li);
+      });
+      populateImages();
+    }
+
+    function validateAll() {
+      showPleaseWait();
+      var dynamicList = document.getElementById('validation-errors');
+      dynamicList.innerHTML = ''; 
+      google.script.run.withSuccessHandler(function(errors){        
+        errors.forEach(function(error) {
+          var li = document.createElement('li');
+          li.textContent = error;
+          li.classList.add('list-item');
+          dynamicList.appendChild(li);
+        });
+        hidePleaseWait();
+      }).validateAllArticlesAndGetLog(articles,jsonObject,imagesAndNames,updateImages);
+
+    }
+
+    function pushToSheet() {
+      showPleaseWait();
+      var dynamicList = document.getElementById('validation-errors');
+      dynamicList.innerHTML = ''; 
+      google.script.run.withSuccessHandler(function(errors){        
+        errors.forEach(function(error) {
+          var li = document.createElement('li');
+          li.textContent = error;
+          li.classList.add('list-item');
+          dynamicList.appendChild(li);
+        });
+        hidePleaseWait();
+      }).pushAllDataToSheet(articles,jsonObject,imagesAndNames,updateImages)
+    }
+
+    function pushAndPR() {
+      showPleaseWait();
+      var dynamicList = document.getElementById('validation-errors');
+      dynamicList.innerHTML = ''; 
+      google.script.run.withSuccessHandler(function(errors){        
+        errors.forEach(function(error) {
+          var li = document.createElement('li');
+          li.textContent = error;
+          li.classList.add('list-item');
+          dynamicList.appendChild(li);
+        });
+        hidePleaseWait();
+      }).pushAllDataAndCreatePR(articles,jsonObject,imagesAndNames,updateImages)
+    }
+
+    document.getElementById('validate-all').addEventListener('click', function(event) {
+      validateAll();
+    });
+
+    document.getElementById('push-to-sheet').addEventListener('click', function(event) {
+      pushToSheet();
+    });
+
+    document.getElementById('push-and-pr').addEventListener('click', function(event) {
+      pushAndPR();
+    });
+
+
+
+    const updateImagesCheckbox = document.getElementById('update-images');
+
+    // Add an event listener to the checkbox to update the variable
+    updateImagesCheckbox.addEventListener('change', function() {
+      updateImages = updateImagesCheckbox.checked;
+    });
+
+  </script>

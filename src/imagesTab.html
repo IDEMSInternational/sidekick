@@ -1,0 +1,56 @@
+<div class="container">
+    <a href="#" class="btn-floating btn-large waves-effect waves-light" id="refresh-images-button">
+      <i class="material-icons">refresh</i>
+    </a>
+    <p>Folder IDs</p>
+    <div class="list-container">      
+      <ul id="dynamic-list"></ul>
+    </div>
+    <div class="cards-container" id="cards-container"></div>
+  </div>
+
+<script>
+    // Function to populate the dynamic list
+    function populateImageFolders() {
+      var dynamicList = document.getElementById('dynamic-list');
+      dynamicList.innerHTML = ''; 
+      imageFolders.forEach(function(item) {
+        var li = document.createElement('li');
+        li.textContent = item;
+        li.classList.add('list-item');
+        dynamicList.appendChild(li);
+      });
+      populateImages();
+    }
+
+    function populateImages() {
+      var cardsContainer = document.getElementById('cards-container');
+      cardsContainer.innerHTML = ''; 
+      google.script.run.withSuccessHandler(function(imagestest){
+        imagesAndNames = imagestest;
+        imagesAndNames.forEach(function(data) {
+          var cardHtml = `
+            <div class="card">
+              <div class="card-image">
+                <img src="https://drive.google.com/thumbnail?id=${data.id}" alt="Make sure all folders are correct and have public view access">
+                
+              </div>
+              <div class="card-content">
+                <p>${data.filename}</p>
+              </div>
+            </div>
+          `;
+          cardsContainer.insertAdjacentHTML('beforeend', cardHtml);
+        });
+      }).getAllFileIdsByNameAndFolder(imageFolders);
+
+    }
+
+    document.getElementById('refresh-images-button').addEventListener('click', function(event) {
+      populateImages();
+    });
+     
+  </script>
+
+
+ 
