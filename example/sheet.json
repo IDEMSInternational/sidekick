@@ -1,0 +1,55 @@
+{
+    "article_id": "id column used as header and link to sections",
+    "status": "status column",
+    "group": "column used to group articles [not used currently]",
+    "sheet":"worksheet name", 
+	"asset_folders": [
+		{
+			"id": "id for drive folder containing assets"
+		}
+	],
+    "fields": [
+        {
+            "type": "text, article_link, asset",
+            "name": "column name"
+        },
+        {
+            "type": "text",
+            "name": "column name2"
+        }
+    ],
+    "sections": [
+        {
+            "name": "name of section how it will appear in Doc",
+            "type": "content [no other types have been created yet]",
+                        "sheet": "worksheet name",
+                        "foreign_key": "column that will contain article_id value",
+            "fields": [
+                {
+                    "type": "text, article_link, asset",
+                    "name": "column name"
+                },
+                {
+                    "type": "text",
+                    "name": "column name2"
+                }
+            ]
+        },
+        {
+            "name": "section2",
+            "type": "content",
+                        "sheet": "worksheet name",
+                        "foreign_key": "column that will contain article_id value",
+            "fields": [
+                {
+                    "type": "text, article_link, asset",
+                    "name": "column name"
+                },
+                {
+                    "type": "text",
+                    "name": "column name2"
+                }
+            ]
+        }
+    ]
+}
