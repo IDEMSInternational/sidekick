@@ -1,4 +1,5 @@
 <div class="container">
+      <a class="waves-effect waves-light btn" id="add-article">Add Article</a>
       <a href="#" class="btn-floating btn-large waves-effect waves-light" id="refresh-articles-button">
       <i class="material-icons">refresh</i>
     </a>
@@ -86,16 +87,12 @@ function generateCollapsibleArticles() {
 
 function validateArticleFields(articleName){
   showPleaseWait();
- // google.script.run.validateFieldsInArticle(articleName,articles,jsonObject,imagesAndNames,updateImages);
-
-
   google.script.run.withSuccessHandler(function(){        
     hidePleaseWait();
   }).validateFieldsInArticle(articleName,articles,jsonObject,imagesAndNames,updateImages);
 }
 
 function validateSections(articleName){
- // google.script.run.validateSectionsInArticleAndAdd("",articleName,articles,jsonObject,imagesAndNames,updateImages);
   showPleaseWait();
   google.script.run.withSuccessHandler(function(){        
     hidePleaseWait();
@@ -103,12 +100,26 @@ function validateSections(articleName){
 }
 
 function addSection(selectedValue, articleName) {
-  //google.script.run.validateSectionsInArticleAndAdd(selectedValue, articleName,articles,jsonObject,imagesAndNames,updateImages);
   showPleaseWait();
   google.script.run.withSuccessHandler(function(){        
     hidePleaseWait();
   }).validateSectionsInArticleAndAdd(selectedValue, articleName,articles,jsonObject,imagesAndNames,updateImages);
 }
+
+function addArticle(selectedValue, articleName) {
+  showPleaseWait();
+  google.script.run.withSuccessHandler(function(){            
+    google.script.run.withSuccessHandler(function(article_names) {
+      articles = article_names;
+      generateCollapsibleArticles();
+      hidePleaseWait();
+    }).getArticleNamesFormDoc();
+  }).addNewArticle(jsonObject);
+}
+
+document.getElementById('add-article').addEventListener('click', function(event) {
+      addArticle();
+    });
 
 document.getElementById('refresh-articles-button').addEventListener('click', function(event) {
   google.script.run.withSuccessHandler(function(article_names) {

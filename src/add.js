@@ -1,3 +1,23 @@
+function addNewArticle(jsonObject){
+  var doc = DocumentApp.getActiveDocument();  
+  var body = doc.getBody();
+  var articleFields = getArticleFields(jsonObject);
+  addAnArticle(body,articleFields,createBlankFields(articleFields),jsonObject.sections,null);
+}
+
+function createBlankFields(fields){
+  var rowsData = {};
+  for (var i = 0; i < fields.length; i++) {
+    var field = fields[i];
+    if (field.type == "id"){
+      rowsData[field.field] = "New Article"
+    } else {
+      rowsData[field.field] = "";
+    }
+  } 
+  return rowsData;
+}
+
 function addAnArticle(body,articleFields,articleValues,sections,sectionValues){
   var header = body.appendParagraph(articleValues.id);
   header.setHeading(DocumentApp.ParagraphHeading.HEADING1);
