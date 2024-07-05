@@ -1,0 +1,1 @@
+This is a Google Docs extension to help authoring content in [Open App Builder](https://github.com/IDEMSInternational/open-app-builder)
