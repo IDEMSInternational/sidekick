@@ -13,7 +13,7 @@ nav:
   - Intro: index.md
   - Set up: setup/setup.md
   - Editing Content:
-          - editing-content/adding-artilces.md
+          - editing-content/adding-articles.md
           - editing-content/editing.md
   - Validation:
       - validation/validation.md
@@ -22,13 +22,10 @@ nav:
   - Images and Assets:
       - assets/assets.md
   - Help:
-      - questions/parameters_styles.md
-      - questions/positioning_components.md
-      - questions/hidden_condition.md
-      - questions/dynamic_content.md
-  - External:
-      - 'Compodoc Generated': ./generated/components/TmplButtonComponent.html" target="_blank
-# Enable all extension for authoring as per https://squidfunk.github.io/mkdocs-material/setup/extensions/
+      - help/privacy-policy.md
+      - help/support.md
+      - help/terms-of-service.md
+
 
 markdown_extensions:
   # Python Markdown
