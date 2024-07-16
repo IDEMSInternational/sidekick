@@ -3,7 +3,11 @@ var updateImages = false;
 function getAllFileIdsByNameAndFolder(folderIds) {
   var filesAndIds = [];
   folderIds.forEach(function(folderId){
-    searchFilesInFolder(folderId,""); 
+    try {
+      searchFilesInFolder(folderId,""); 
+    } catch(e) {
+      console.log("Unable to access drive for folders: "+ folderIds + " error: " + e.message)
+    }
   })
   
   return filesAndIds; 
@@ -14,10 +18,8 @@ function getAllFileIdsByNameAndFolder(folderIds) {
     while (files.hasNext()) {
       var file = files.next();
       var fileNameWithPath = folderName + file.getName(); // Include folder name in file path
-   //   if (fileNameWithPath.toLowerCase().endsWith('.svg')) {
         var fileId = file.getId();
-        filesAndIds.push({"filename" : fileNameWithPath, "id" : file.getId(), "image" : file.getThumbnail().getBytes()});///Utilities.base64Encode(file.getThumbnail().getBytes())});
-   //   }
+        filesAndIds.push({"filename" : fileNameWithPath, "id" : file.getId(), "image" : file.getThumbnail().getBytes()});
     }
     var subfolders = folder.getFolders();
     while (subfolders.hasNext()) {
@@ -28,7 +30,10 @@ function getAllFileIdsByNameAndFolder(folderIds) {
 }
 
 function updateAsset(cell,assets){  
-  var fileName = cell.getText(); 
+  var fileName = cell.getText().trim();
+  if (fileName == ""){
+    return
+  } 
   var asset = findAsset(assets,fileName)
   if (asset){
     console.log("update images: " + updateImages)
