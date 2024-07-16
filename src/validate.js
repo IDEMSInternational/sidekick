@@ -49,14 +49,6 @@ function validateSectionsInArticleAndAdd(sectionName, articleName, allArticleNam
     showError(getValidationLog().toString())
     return;
   }
-
-//  var sectionStartLocation
- // if (articleMap.startElement == null) {
- //     sectionStartLocation = body.getChildIndex(articleMap.articleTable)+1;
-//  } else {
- //   sectionStartLocation = body.getChildIndex(articleMap.startElement)    
- // }
-
   reOrderAndAddSectionElements(body,getSectionStartLocation(body,articleMap),articleMap.sectionTables,sectionName,jsonObject,allArticleNames,imagesAndNames);
   deleteNonDefinedElementsInSections(articleMap.cleanUpElements);  
 }
@@ -89,14 +81,6 @@ function validateAllArticles(allArticleNames,jsonObject,imagesAndNames){
 
   allMaps.forEach(function(map){  
     logArticleValidationStart(map.articleName);
-    
-  // var sectionStartLocation
-  //  if (map.startElement == null) {
-  //    sectionStartLocation = body.getChildIndex(map.articleTable)+1;
-  //  } else {
-  //    sectionStartLocation = body.getChildIndex(map.startElement)    
-  //  }
-
     validateFields(map.articleTable,getArticleFieldsWithoutId(getArticleFields(jsonObject)))
     updateAssets(map.articleTable,getArticleFields(jsonObject),allArticleNames,imagesAndNames);
     if (map.sectionTables.length > 0){
