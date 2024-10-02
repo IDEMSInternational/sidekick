@@ -17,6 +17,5 @@ jobs:
         uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CUSTOM_DOMAIN: app-sidekick.idems.international
           CONFIG_FILE: documentation/mkdocs.yml
           REQUIREMENTS: documentation/requirements.txt
