@@ -3,13 +3,13 @@
 ## FAQ
 
 ### 1. How do I get started?
-To get started, please refer to our [Setup Guide](./docs/setup/setup.md) 
+To get started, please refer to our [Setup Guide](../setup/setup.md) 
 
 ### 2. How can I report a bug or request a feature?
 You can open an issue on our [GitHub repository](https://github.com/IDEMSInternational/sidekick/issues) to report any bugs or suggest new features.
 
 ### 3. Where can I find the project documentation?
-All documentation is available on our [Documentation page](./docs/index.md).
+All documentation is available on our [Documentation page](../index.md).
 
 
 ## Contact Us
