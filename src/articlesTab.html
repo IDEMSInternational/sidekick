@@ -12,9 +12,9 @@
 
 <script>
 
-function createDropdownButton(label,dataTarget){
+function createDropdownButton(label, dataTarget) {
   var dropdownTrigger = document.createElement('a');
-  dropdownTrigger.classList.add('dropdown-trigger', 'btn', 'waves-effect', 'waves-light');
+  dropdownTrigger.classList.add('dropdown-trigger', 'btn-icon', 'waves-effect', 'waves-light', 'btn');
   dropdownTrigger.setAttribute('href', '#');
   dropdownTrigger.setAttribute('data-target', dataTarget);
   dropdownTrigger.textContent = label;
@@ -29,65 +29,185 @@ function createDropdownList(id){
   return dropdownList;
 }
 
-function addDropdownItem(dropdownList,label,callFunction,...callParams){
+//function addDropdownItem(dropdownList,label,callFunction,...callParams){
+//    var item = document.createElement('li');
+//    var link = document.createElement('a');
+//    link.setAttribute('href', '#!');
+//    link.textContent = label;
+//    link.addEventListener('click', function() {
+
+//      callFunction(...callParams);
+//    });
+//    item.appendChild(link);
+//    dropdownList.appendChild(item);
+//}
+
+function addSectionDropdownItem(dropdownList,label,article,section,pageId){
     var item = document.createElement('li');
     var link = document.createElement('a');
     link.setAttribute('href', '#!');
     link.textContent = label;
-    link.addEventListener('click', function() {
-      callFunction(...callParams);
-    });
+    if (hasSubItems){
+      console.log('add event section: '+section+' article: '+ article+' count: '+pageId);
+      link.addEventListener('click', function() {
+        addSectionToPage(section,article, pageId)
+      });
+    } else {
+      console.log('add event section: '+section+' article: '+ article);
+      link.addEventListener('click', function() {
+        addSection(section, article)
+      });
+    
+    }
     item.appendChild(link);
     dropdownList.appendChild(item);
 }
 
-function generateCollapsibleArticles() {
-  var collapsibleList = document.querySelector('.collapsible');
-  collapsibleList.innerHTML = '';
-  articles.forEach(function(article) {
-    var li = document.createElement('li');
-    var header = document.createElement('div');
-    header.classList.add('collapsible-header');
-    header.textContent = article;
+function createAddPageButton(article_name){
+  var addPageButton = document.createElement('a');
+  addPageButton.classList.add('waves-effect', 'waves-light', 'btn');
+  addPageButton.id = 'add-page' + article_name;
+  addPageButton.textContent = 'Add Page';
+  addPageButton.addEventListener('click', function () {
+    addPage(article_name);
+  });
+  return addPageButton
+}
 
-    var body = document.createElement('div');
-    body.classList.add('collapsible-body');
+function createValidateButton(article_name){
+  var validateButton = document.createElement('a');
+  validateButton.classList.add('waves-effect', 'waves-light', 'btn');
+  validateButton.id = 'validate' + article_name;
+  validateButton.textContent = 'Validate';
+  validateButton.addEventListener('click', function () {
+    validateArticle(article_name);
+  });
+  return validateButton
+}
 
+// Adds "Add Section" and "Validate" buttons
+function addSectionButtons(container, article,pageId = 0) {
+  var addDropdownButton = createDropdownButton('Add Section', 'addDropdown-' + article +'p'+ pageId);
+  var addDropdownList = createDropdownList('addDropdown-' + article +'p'+ pageId);
 
-    var addDropdownButton = createDropdownButton('Add Section','addDropdown-' + article);
-    var addDropdownList = createDropdownList('addDropdown-' + article);
-    sections.forEach(function(section) {
-      addDropdownItem(addDropdownList,section,addSection,section,article);
-    });
-    body.appendChild(addDropdownButton);
-    body.appendChild(addDropdownList);
-
-    var validateDropdownButton = createDropdownButton('Validate','validateDropdown-' + article);
-    var validateDropdownList = createDropdownList('validateDropdown-' + article);
-
-    addDropdownItem(validateDropdownList,'article fields',validateArticleFields,article);
-    addDropdownItem(validateDropdownList,'section fields',validateSections,article);
-
-    body.appendChild(validateDropdownButton);
-    body.appendChild(validateDropdownList);
-
-
-    // Append header and body to the list item
-    li.appendChild(header);
-    li.appendChild(body);
-
-    // Append the list item to the collapsible list
-    collapsibleList.appendChild(li);
-
-    var addDropdownInstance = M.Dropdown.init(addDropdownButton, {});
-    var validateDropdownInstance = M.Dropdown.init(validateDropdownButton, {});    
-  }); 
+  sections.forEach(function (section) {
+      addSectionDropdownItem(addDropdownList, section,article, section, pageId);
+  });
+  container.appendChild(addDropdownButton);
+  container.appendChild(addDropdownList);
+  document.body.appendChild(addDropdownList); // Ensures it exists in the DOM
 }
 
 
+function generateCollapsibleArticles() {
+  var collapsibleList = document.querySelector('.collapsible');
+  collapsibleList.innerHTML = '';
+
+  articles.forEach(function (article) {
+    var li = document.createElement('li');
+
+    var header = createCollapsibleHeader(article.name);
+    var body = document.createElement('div');
+    body.classList.add('collapsible-body');
+
+    if (article.sub_item){
+      if (article.sub_item.length > 0) {
+        var nestedCollapsible = document.createElement('ul');
+        nestedCollapsible.classList.add('collapsible', 'nested-collapsible');
+
+        var subItemCount = 0;
+        article.sub_item.forEach(function (subItem) {
+          var itemLi = document.createElement('li');
+          var innerHeader = createCollapsibleHeader(subItem.name);
+          var innerBody = document.createElement('div');
+          innerBody.classList.add('collapsible-body');
+
+          console.log('add section button '+article.name+' count '+subItemCount);
+
+          addSectionButtons(innerBody,article.name, subItemCount);
+          subItemCount++;
+
+          itemLi.appendChild(innerHeader);
+          itemLi.appendChild(innerBody);
+          nestedCollapsible.appendChild(itemLi);
+        });
+
+        body.appendChild(nestedCollapsible);
+
+
+        var addPageButton = createAddPageButton(article.name);
+        body.appendChild(addPageButton);
+        var validateButton = createValidateButton(article.name);
+        body.appendChild(validateButton);
+      } else {
+        var addPageButton = createAddPageButton(article.name);
+        body.appendChild(addPageButton);
+        var validateButton = createValidateButton(article.name);
+        body.appendChild(validateButton);
+      }      
+    } else {
+      addSectionButtons(body, article.name);
+      var validateButton = createValidateButton(article.name);
+      body.appendChild(validateButton);
+    }
+
+    li.appendChild(header);
+    li.appendChild(body);
+    collapsibleList.appendChild(li);
+  });
+
+  // Initialize Materialize collapsibles
+  M.Collapsible.init(document.querySelectorAll('.collapsible'));
+  M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
+}
+
+
+// Creates a collapsible header
+function createCollapsibleHeader(title) {
+  var header = document.createElement('div');
+  header.classList.add('collapsible-header');
+  header.textContent = title;
+  return header;
+}
+
+
+
+
+
+function addButtonsForArticles(body){
+  var addDropdownButton = createDropdownButton('Add Section','addDropdown-' + article);
+  var addDropdownList = createDropdownList('addDropdown-' + article);
+  sections.forEach(function(section) {
+    addDropdownItem(addDropdownList,section,addSection,section,article);
+  });
+  body.appendChild(addDropdownButton);
+  body.appendChild(addDropdownList);
+
+  var validateDropdownButton = createDropdownButton('Validate','validateDropdown-' + article);
+  var validateDropdownList = createDropdownList('validateDropdown-' + article);
+
+  addDropdownItem(validateDropdownList,'article fields',validateArticleFields,article);
+  addDropdownItem(validateDropdownList,'section fields',validateSections,article);
+
+  body.appendChild(validateDropdownButton);
+  body.appendChild(validateDropdownList);
+}
+
+
+
+
+function addPage(articleName){
+  showPleaseWait();
+  google.script.run.withSuccessHandler(function(){      
+    refreshArticles();  
+    hidePleaseWait();
+  }).validateSubItemsInArticleAndAdd(articleName,articles,jsonObject,imagesAndNames,updateImages);
+}
+
 function validateArticleFields(articleName){
   showPleaseWait();
-  google.script.run.withSuccessHandler(function(){        
+  google.script.run.withSuccessHandler(function(){     
+
     hidePleaseWait();
   }).validateFieldsInArticle(articleName,articles,jsonObject,imagesAndNames,updateImages);
 }
@@ -99,6 +219,24 @@ function validateSections(articleName){
   }).validateSectionsInArticleAndAdd("",articleName,articles,jsonObject,imagesAndNames,updateImages);
 }
 
+function validateArticle(articleName){
+  showPleaseWait();
+  console.log('validateArticle - article '+articleName);
+  google.script.run.withSuccessHandler(function(){        
+    hidePleaseWait();
+  }).validateArticle(articleName,articles,jsonObject,imagesAndNames,updateImages,hasSubItems);
+}
+
+
+function addSectionToPage(selectedValue,articleName, pageId){
+  showPleaseWait();
+  console.log('addSectionToPage');
+  console.log('Value '+selectedValue+' article '+articleName+' page '+pageId);
+  google.script.run.withSuccessHandler(function(){        
+    hidePleaseWait();
+  }).validateSectionsInSubItemAndAdd(selectedValue,pageId, articleName,articles,jsonObject,imagesAndNames,updateImages);
+}
+
 function addSection(selectedValue, articleName) {
   showPleaseWait();
   google.script.run.withSuccessHandler(function(){        
@@ -106,26 +244,45 @@ function addSection(selectedValue, articleName) {
   }).validateSectionsInArticleAndAdd(selectedValue, articleName,articles,jsonObject,imagesAndNames,updateImages);
 }
 
+function updateAddArticleButton(hidden) { 
+    const button = document.getElementById("add-article");
+    if (button) {
+        button.style.display = hidden ? "none" : "inline-block";
+    }
+}
+
 function addArticle(selectedValue, articleName) {
   showPleaseWait();
-  google.script.run.withSuccessHandler(function(){            
+  google.script.run.withSuccessHandler(function(){  
+    refreshArticles();
+    hidePleaseWait();
+  }).addNewArticle(jsonObject);
+}
+
+function refreshArticles(){
+  if (hasSubItems){
     google.script.run.withSuccessHandler(function(article_names) {
       articles = article_names;
       generateCollapsibleArticles();
-      hidePleaseWait();
-    }).getArticleNamesFormDoc();
-  }).addNewArticle(jsonObject);
+    }).getArticlesAndSubItemNamesFromDoc();
+  }
+  else
+  {
+    google.script.run.withSuccessHandler(function(article_names) {
+        articles = article_names;
+        generateCollapsibleArticles();
+      }).getArticleNamesFormDoc();
+  }
 }
 
 document.getElementById('add-article').addEventListener('click', function(event) {
       addArticle();
     });
 
-document.getElementById('refresh-articles-button').addEventListener('click', function(event) {
-  google.script.run.withSuccessHandler(function(article_names) {
-      articles = article_names;
-      generateCollapsibleArticles();
-    }).getArticleNamesFormDoc();
+document.getElementById('refresh-articles-button').addEventListener('click', function(event) { 
+  showPleaseWait();
+  refreshArticles();
+  hidePleaseWait();
 });
 
 </script>

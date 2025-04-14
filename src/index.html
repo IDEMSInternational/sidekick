@@ -58,6 +58,29 @@
       text-align: center;
       margin-top: 40px;
     }
+
+
+    /* Make sure the nested items are aligned properly */
+    .nested-collapsible .collapsible-header {
+      padding: 2px 1px; /* Adjust padding to match your design */
+      font-size: 14px; /* Slightly smaller font for nested items */
+    }
+
+     /*Remove extra space inside nested collapsible body 
+    .nested-collapsible .collapsible-body {
+      padding: 2px;
+      margin: 0;
+    }*/
+
+    .collapsible .collapsible-body {
+      padding: 2px;
+      margin: 0;
+    }
+
+
+
+
+
   </style>
 </head>
 <body>
@@ -110,6 +133,8 @@
   var imageFolders = [];
   var imagesAndNames = [];
   var updateImages = false;
+  var hasSubItems = true; //this should be false by default
+  var singleArticle = false;
 
   function showPleaseWait() {
     document.getElementById('content').style.display = 'none';
@@ -150,10 +175,24 @@
     } else {
       google.script.run.withSuccessHandler(function(section_names) {
         sections = section_names;
-        google.script.run.withSuccessHandler(function(article_names) {
-          articles = article_names;
-          generateCollapsibleArticles();
-        }).getArticleNamesFormDoc();
+        hasSubItems = !!(jsonObject.sub_item)
+        console.log('jsonObject.sub_item: ' + jsonObject.sub_item)
+        console.log('hasSubItems: ' + hasSubItems)
+        if (hasSubItems){
+          console.log('getArticlesAndSubItemNamesFromDoc')
+          google.script.run.withSuccessHandler(function(article_names) {
+            articles = article_names;
+            generateCollapsibleArticles();
+          }).getArticlesAndSubItemNamesFromDoc();
+        }
+        else
+        {
+          console.log('getArticleNamesFormDoc')
+          google.script.run.withSuccessHandler(function(article_names) {
+            articles = article_names;
+            generateCollapsibleArticles();
+          }).getArticleNamesFormDoc();
+        }
       }).getSectionNames(jsonObject);
       google.script.run.withSuccessHandler(function(folders){
         imageFolders = folders;
@@ -161,6 +200,10 @@
       }).getImageFileLocations(jsonObject);
     }
   }).getJSON();
+  google.script.run.withSuccessHandler(function(isLimited){
+    singleArticle = isLimited;
+    updateAddArticleButton(isLimited);
+  }).getIsLimited()
 
 </script>
 

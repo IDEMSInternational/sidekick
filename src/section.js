@@ -29,7 +29,42 @@ function reOrderAndAddSectionElements(body,startLocation,sectionTables,newSectio
 
 function deleteNonDefinedElementsInSections(cleanUpElements){
   cleanUpElements.forEach(function(element){
+    var test = element.toString();
+    var test2 = element.getParent();
+    if (test2 !== null)
+    {
     element.removeFromParent();
+    }
   })
 }
 
+
+function reOrderAndAddSubItem(body,startLocation,subItems,jsonObject,allArticleNames,imagesAndNames){
+
+  var header = body.insertParagraph(startLocation,subItemText + (subItems.length + 1));
+  header.setHeading(DocumentApp.ParagraphHeading.HEADING2); 
+  for (var i = subItems.length - 1; i >= 0; i--) {
+    var subItem = subItems[i];
+    logSectionSubItemStart(i+1);
+    reOrderAndAddSectionElements(body,startLocation,subItem.sectionTables,'',jsonObject,allArticleNames,imagesAndNames);
+    var header = body.insertParagraph(startLocation,subItemText + (i+1));
+    header.setHeading(DocumentApp.ParagraphHeading.HEADING2);     
+    subItem.header.removeFromParent();
+  }
+      
+}
+
+function reOrderAndAddSectionElementsToSubItem(body,startLocation,subItems,newSectionName,newSectionSubItemId,jsonObject,allArticleNames,imagesAndNames){
+  for (var i = subItems.length - 1; i >= 0; i--) {
+    var subItem = subItems[i];
+    logSectionSubItemStart(i+1);
+    if (i == newSectionSubItemId){
+      reOrderAndAddSectionElements(body,startLocation,subItem.sectionTables,newSectionName,jsonObject,allArticleNames,imagesAndNames);    
+    } else {
+      reOrderAndAddSectionElements(body,startLocation,subItem.sectionTables,'',jsonObject,allArticleNames,imagesAndNames);
+    }
+    var header = body.insertParagraph(startLocation,subItemText + (i+1));
+    header.setHeading(DocumentApp.ParagraphHeading.HEADING2);     
+    subItem.header.removeFromParent();
+  }
+}

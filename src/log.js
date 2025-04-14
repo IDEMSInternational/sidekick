@@ -3,6 +3,7 @@ noErrorsText = "No validation errors detected"
 validationLog = [];
 currentValidationArticle = '';
 currentSection ='';
+currentSubItemId = '';
 
 function logArticleValidationStart(articleName){
   currentValidationArticle = articleName;
@@ -13,7 +14,12 @@ function logSectionValidationStart(sectionName){
   currentSection = sectionName;
 }
 
+function logSectionSubItemStart(subItemId){
+  currentSubItemId = subItemId;
+}
+
 function logValidationError(error){
+  //TODO log subItemId
   if (currentSection == ''){
     validationLog.push(currentValidationArticle + ": " + error);
   } else {

@@ -18,15 +18,20 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(html)
 }
 
-function onOpen(){
+function onOpen(e){
   DocumentApp.getUi()
-    .createMenu('Sidekick')
+    .createAddonMenu()
     .addItem('Show Sidebar', 'showSidebar')
     .addSeparator()
     .addItem('Import Data', 'importDataFormSpreadsheet')
+    .addSeparator()
+    .addItem('Create Demo Data', 'createDemoData')
     .addToUi();
 }
 
+function onInstall(e) {
+  onOpen(e);
+} 
 
 function showError(error){
   var ui = DocumentApp.getUi();
@@ -45,5 +50,16 @@ function importDataFormSpreadsheet(){
       ui.ButtonSet.YES_NO);
   if (response == ui.Button.YES){
     pullAllDataFromSheet();
+  }
+}
+
+function createDemoData(){
+  var ui = DocumentApp.getUi();
+  var response = ui.alert(
+     'WARNING',
+     'This will create demo data including a new SHEET. It will DELETE all data in the document. Are you sure you want to continue?',
+      ui.ButtonSet.YES_NO);
+  if (response == ui.Button.YES){
+    setupDemoData();
   }
 }

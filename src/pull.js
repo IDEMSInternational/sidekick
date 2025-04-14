@@ -12,10 +12,15 @@ function pullAllDataFromSheet(){
   deleteFromDocument(body,getIdForFirstTable(body)+1,body.getNumChildren()-1)
 
   var articleData = pullDataFromSheet(sheet,articleFields);
+  var subItemData = jsonObject.sub_item ? pullAllSubItemDataFromSheet(spreadsheetId, jsonObject.sub_item) : null;
   var sectionsData = pullAllSectionDataFromSheet(spreadsheetId,jsonObject.sections)
 
+  var limitedArticle = getLimitedArticle(body);
+
   articleData.forEach(function(line) {
-    addAnArticle(body,articleFields,line,jsonObject.sections,sectionsData);
+    if ((limitedArticle == "" ) || (limitedArticle == line.id )) {
+      addAnArticle(body,articleFields,line,jsonObject.sections,sectionsData,jsonObject.sub_item,subItemData);
+    }
   });
 }
 
@@ -39,6 +44,12 @@ function pullDataFromSheet(sheet,fields){
     rowsData.push(rowData);
   }  
   return rowsData;
+}
+
+function pullAllSubItemDataFromSheet(spreadsheetId,subItem){
+  var sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(subItem.sheet);
+  var subItemData = pullDataFromSheet(sheet,getSubItemFields(subItem));    
+  return subItemData
 }
 
 function pullAllSectionDataFromSheet(spreadsheetId,sections){

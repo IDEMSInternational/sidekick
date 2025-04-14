@@ -1,25 +1,47 @@
-
-
-
 function getArticleNamesFormDoc(){
   var doc = DocumentApp.getActiveDocument();  
   var body = doc.getBody();
-  deleteAllBlankHeading1s(body);
+  deleteAllBlankHeadings(body);
   var paragraphs = body.getParagraphs();  
   var articles = [];
   for (var i = 0; i < paragraphs.length; i++) {
     if (paragraphs[i].getHeading() === DocumentApp.ParagraphHeading.HEADING1) {
-      articles.push(paragraphs[i].getText());
+      articles.push({name: paragraphs[i].getText()});
     }
   }
   return articles;
 }
 
-function deleteAllBlankHeading1s(body){
+function getArticlesAndSubItemNamesFromDoc(){
+  var doc = DocumentApp.getActiveDocument();  
+  var body = doc.getBody();
+  deleteAllBlankHeadings(body)
+  var paragraphs = body.getParagraphs();  
+  var articles = [];
+  for (var i = 0; i < paragraphs.length; i++) {
+    if (paragraphs[i].getHeading() === DocumentApp.ParagraphHeading.HEADING1) {
+      var subItems =[];
+      articles.push({name: paragraphs[i].getText(), sub_item: subItems});
+    }
+    else if (paragraphs[i].getHeading() === DocumentApp.ParagraphHeading.HEADING2) {
+      subItems.push({name: paragraphs[i].getText()});
+    }
+  }
+  return articles;
+}
+
+
+
+
+function deleteAllBlankHeadings(body){
   var paragraphs = body.getParagraphs();  
   for (var i = paragraphs.length -1; i >=0 ; i--) {
-    if (paragraphs[i].getHeading() === DocumentApp.ParagraphHeading.HEADING1) {
+    if ((paragraphs[i].getHeading() === DocumentApp.ParagraphHeading.HEADING1) 
+        ||(paragraphs[i].getHeading() === DocumentApp.ParagraphHeading.HEADING2)){
       if (paragraphs[i].getText().trim() == "") {
+        if (i === paragraphs.length - 1) {
+          body.appendParagraph(""); // Add a blank paragraph at the end
+        }
         paragraphs[i].removeFromParent();
       }
     }
@@ -40,6 +62,14 @@ function getSectionFields(section){
   }
   return fields
 }
+
+function getSubItemFields(subItem){
+  var fields = [];
+  fields.push({"field":subItem.sub_item_id,"type":"id"});
+  fields.push({"field":subItem.foreign_key,"type":"foreign_key"});
+  return fields
+}
+
 
 function getSubTableData(fields,values){
   var tableData = [];

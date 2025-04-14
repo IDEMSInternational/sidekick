@@ -4,6 +4,12 @@ function getJSON(){  //Called from HTML
   return getJSONfromBody(body)
 }
 
+function getIsLimited(){//Called from HTML
+  var doc = DocumentApp.getActiveDocument();  
+  var body = doc.getBody();
+  return getLimitedArticle(body) !== '';
+}
+
 function getSheetId(body){
   try {
     var firstTable = body.getTables()[0]; // Get the first table in the document
@@ -11,6 +17,16 @@ function getSheetId(body){
   }
   catch(error){
     showError("Could not find METADATA table, unable to run sidekick"); 
+  }
+}
+
+function getLimitedArticle(body){
+  try {
+    var firstTable = body.getTables()[0]; // Get the first table in the document
+    return firstTable.getCell(2, 1).getText();
+  }
+  catch(error){
+    return ''; 
   }
 }
 
