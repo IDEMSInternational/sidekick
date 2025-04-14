@@ -25,3 +25,8 @@ All content can be added directly within the document without using the side men
 - Section data must be within a table under the Section Subtitle
 - The first column of all data tables must contain the field names
 - The first table must be the METADATA table as mentioned in **Set up**
+
+# Demo 
+**Create Demo Data** will setup a new Sheet with a sample structure. It will link the Sheet to the Doc and allow you to add Articles and push back to the Sheet
+
+
