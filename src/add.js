@@ -10,7 +10,7 @@ function createBlankFields(fields){
   for (var i = 0; i < fields.length; i++) {
     var field = fields[i];
     if (field.type == "id"){
-      rowsData[field.field] = "New Article"
+      rowsData[field.field] = "New_Article"
     } else {
       rowsData[field.field] = "";
     }
@@ -18,13 +18,31 @@ function createBlankFields(fields){
   return rowsData;
 }
 
-function addAnArticle(body,articleFields,articleValues,sections,sectionValues){
+function addAnArticle(body,articleFields,articleValues,sections,sectionValues,subItem,subItemValues){
   var header = body.appendParagraph(articleValues.id);
   header.setHeading(DocumentApp.ParagraphHeading.HEADING1);
   addSubTable(body,getArticleFieldsWithoutId(articleFields),articleValues);
-  addSectionsToArticle(body,sections,sectionValues,articleValues.id);
+  if (subItemValues) {
+    addSubItemsToArticle(body,sections,sectionValues,getSubItemFields(subItem),subItemValues,articleValues.id);
+  } else {
+    addSectionsToArticle(body,sections,sectionValues,articleValues.id);
+  }
 }
 
+function addSubItemsToArticle(body,sections,sectionValues,subItemFields,subItemValues,id){
+  var pageCount = 1;
+  subItemValues.forEach(function(line) {
+    if (line) {
+      if (line['foreign_key'] == id) 
+      {
+        var header = body.appendParagraph(subItemText + pageCount);
+        pageCount++;
+        header.setHeading(DocumentApp.ParagraphHeading.HEADING2);  
+        addSectionsToArticle(body,sections,sectionValues,line['id']);
+      }
+    }
+  });
+}
 
 function addSectionsToArticle(body,sections,sectionsData,id){  
   for (var sectionKey in sections) {
@@ -53,14 +71,14 @@ function addSectionsToArticle(body,sections,sectionsData,id){
 }
 
 
-function addNewSectionToArticle(sectionName, articleName, allArticleNames, jsonObject,imagesAndNames,updateImage){
+function addNewSectionToArticle(sectionName, articleName, allArticles, jsonObject,imagesAndNames,updateImage){
   updateImages = updateImage;
   var doc = DocumentApp.getActiveDocument();  
   var body = doc.getBody();
   var sectionTypes = getSectionNames(jsonObject);
   
   var numChildren = body.getNumChildren();
-  var startPostion = (findPositionOfStringInList(articleName,allArticleNames)+1) * 2; //find rough place
+  var startPostion = (findPositionOfArticleInList(articleName,allArticles)+1) * 2; //find rough place
   startPostion = findPostionOfArticle(body,startPostion,numChildren,articleName) +1; //find exact article place
   if (startPostion == 0) {
     return
@@ -79,7 +97,7 @@ function addNewSectionToArticle(sectionName, articleName, allArticleNames, jsonO
     sectionStartLocation = body.getChildIndex(artilceMap.startElement)    
   }
 
-  reOrderAndAddSectionElements(body,sectionStartLocation,artilceMap.sectionTables,sectionName,jsonObject,allArticleNames,imagesAndNames);
+  reOrderAndAddSectionElements(body,sectionStartLocation,artilceMap.sectionTables,sectionName,jsonObject,allArticles,imagesAndNames);
   console.log("8: " + Date.now())
   deleteNonDefinedElementsInSections(artilceMap.cleanUpElements);  
   console.log("9: " + Date.now())

@@ -71,3 +71,5 @@ var outerTableInvalidBorderColour = '#ff0000'; //red
 var imageSize = 80;
 
 var fieldColumnSize = 70;
+
+var subItemText = 'page_';

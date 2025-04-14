@@ -12,15 +12,19 @@ function validateFieldsInArticle(articleName,allArticleNames,jsonObject,imagesAn
   updateAssets(articleMap.articleTable,getArticleFields(jsonObject),allArticleNames,imagesAndNames);
 }
 
-function getArticleMapFromDoc(body,articleName,allArticleNames,sectionTypes){
+function getArticleMapFromDoc(body,articleName,allArticleNames,sectionTypes, hasSubItems = false){
   logArticleValidationStart(articleName)
   var numChildren = body.getNumChildren();
-  var startPosition = (findPositionOfStringInList(articleName,allArticleNames)+1) * 2; //find rough place
+  var startPosition = (findPositionOfArticleInList(articleName,allArticleNames)+1) * 2; //find rough place
   startPosition = findPostionOfArticle(body,startPosition,numChildren,articleName) +1; //find exact article place 
   if (startPosition == 0){
     return null
   } else {
-    return mapOutArticle(body,startPosition,numChildren,articleName,sectionTypes);
+    if (hasSubItems){
+      return mapOutArticleWithSubItems(body,startPosition,numChildren,articleName,sectionTypes);  
+    } else {
+      return mapOutArticle(body,startPosition,numChildren,articleName,sectionTypes);
+    }
   }
 }
 
@@ -36,6 +40,60 @@ function findPostionOfArticle(body,startPosition,numberOfElements,articleName){
   }
   logValidationError("Could not find article, Please refesh all articles")
   return -1  
+}
+
+function validateSubItemsInArticleAndAdd(articleName, allArticleNames, jsonObject,imagesAndNames,updateImage){
+  updateImages = updateImage;
+  var doc = DocumentApp.getActiveDocument();  
+  var body = doc.getBody();
+
+  var articleMap = getArticleMapFromDoc(body,articleName,allArticleNames,getSectionNames(jsonObject),true)
+  if (!isValidMap(articleMap)) {
+    showError(getValidationLog().toString())
+    return;
+  }
+  reOrderAndAddSubItem(body,getSectionStartLocation(body,articleMap),articleMap.subItems,jsonObject,allArticleNames,imagesAndNames)
+  deleteNonDefinedElementsInSections(articleMap.cleanUpElements); 
+}
+
+
+function validateSectionsInSubItemAndAdd(sectionName, subItemIndex, articleName, allArticleNames, jsonObject,imagesAndNames,updateImage){
+  //Leave sectionName blank if only validating
+  updateImages = updateImage;
+  var doc = DocumentApp.getActiveDocument();  
+  var body = doc.getBody();
+
+  var articleMap = getArticleMapFromDoc(body,articleName,allArticleNames,getSectionNames(jsonObject),true)
+  if (!isValidMap(articleMap)) {
+    showError(getValidationLog().toString())
+    return;
+  }
+  reOrderAndAddSectionElementsToSubItem(body,getSectionStartLocation(body,articleMap),articleMap.subItems,sectionName,subItemIndex,jsonObject,allArticleNames,imagesAndNames);
+  deleteNonDefinedElementsInSections(articleMap.cleanUpElements); 
+}
+
+function validateArticle(articleName, allArticleNames, jsonObject,imagesAndNames,updateImage,hasSubItems = false){
+  updateImages = updateImage;
+  var doc = DocumentApp.getActiveDocument();  
+  var body = doc.getBody();
+
+  var articleMap = getArticleMapFromDoc(body,articleName,allArticleNames,getSectionNames(jsonObject),hasSubItems)
+  if (!isValidMap(articleMap)) {
+    showError(getValidationLog().toString())
+    return;
+  }
+  validateFields(articleMap.articleTable,getArticleFieldsWithoutId(getArticleFields(jsonObject)))
+  updateAssets(articleMap.articleTable,getArticleFields(jsonObject),allArticleNames,imagesAndNames);
+  if (hasSubItems){      
+    reOrderAndAddSectionElementsToSubItem(body,getSectionStartLocation(body,articleMap),articleMap.subItems,"",-1,jsonObject,allArticleNames,imagesAndNames)
+  } else {
+    if (articleMap.sectionTables.length > 0){
+      reOrderAndAddSectionElements(body,getSectionStartLocation(body,articleMap),articleMap.sectionTables,"",jsonObject,allArticleNames,imagesAndNames);
+    }
+  }
+  if (articleMap.cleanUpElements.length > 0){
+    deleteNonDefinedElementsInSections(articleMap.cleanUpElements);
+  }
 }
 
 function validateSectionsInArticleAndAdd(sectionName, articleName, allArticleNames, jsonObject,imagesAndNames,updateImage){
@@ -62,18 +120,22 @@ function getSectionStartLocation(body,articleMap){
   }
 }
 
-function validateAllArticles(allArticleNames,jsonObject,imagesAndNames){
+function validateAllArticles(allArticles,jsonObject,imagesAndNames,hasSubItems = false){
   var doc = DocumentApp.getActiveDocument();  
   var body = doc.getBody();
   var numChildren = body.getNumChildren();
   var allMaps = [];
 
-  var postion = (findPositionOfStringInList(allArticleNames[0],allArticleNames)+1) * 2;
-  allArticleNames.forEach(function(articleName){
-    postion = findPostionOfArticle(body,postion,numChildren,articleName) +1 ; 
-    var articleMap = mapOutArticle(body,postion,numChildren,articleName,getSectionNames(jsonObject));
+  var postion = (findPositionOfArticleInList(allArticles[0].name,allArticles)+1) * 2;
+  allArticles.forEach(function(article){
+    postion = findPostionOfArticle(body,postion,numChildren,article.name) +1 ; 
+    if (hasSubItems){
+      var articleMap = mapOutArticleWithSubItems(body,postion,numChildren,article.name,getSectionNames(jsonObject));
+    } else {
+      var articleMap = mapOutArticle(body,postion,numChildren,article.name,getSectionNames(jsonObject));
+    }
     postion = articleMap.end -1;
-    logArticleValidationStart(articleName)
+    logArticleValidationStart(article.name)
     if (isValidMap(articleMap)){
       allMaps.push(articleMap);
     }
@@ -82,9 +144,13 @@ function validateAllArticles(allArticleNames,jsonObject,imagesAndNames){
   allMaps.forEach(function(map){  
     logArticleValidationStart(map.articleName);
     validateFields(map.articleTable,getArticleFieldsWithoutId(getArticleFields(jsonObject)))
-    updateAssets(map.articleTable,getArticleFields(jsonObject),allArticleNames,imagesAndNames);
-    if (map.sectionTables.length > 0){
-      reOrderAndAddSectionElements(body,getSectionStartLocation(body,map),map.sectionTables,"",jsonObject,allArticleNames,imagesAndNames);
+    updateAssets(map.articleTable,getArticleFields(jsonObject),allArticles,imagesAndNames);
+    if (hasSubItems){      
+      reOrderAndAddSectionElementsToSubItem(body,getSectionStartLocation(body,map),map.subItems,"",-1,jsonObject,allArticles,imagesAndNames)
+    } else {
+      if (map.sectionTables.length > 0){
+        reOrderAndAddSectionElements(body,getSectionStartLocation(body,map),map.sectionTables,"",jsonObject,allArticles,imagesAndNames);
+      }
     }
     if (map.cleanUpElements.length > 0){
       deleteNonDefinedElementsInSections(map.cleanUpElements);
@@ -94,9 +160,9 @@ function validateAllArticles(allArticleNames,jsonObject,imagesAndNames){
 }
 
 
-function validateAllArticlesAndGetLog(allArticleNames,jsonObject,imagesAndNames,updateImage){
+function validateAllArticlesAndGetLog(allArticleNames,jsonObject,imagesAndNames,updateImage,hasSubItems = false){
   updateImages = updateImage;
-  validateAllArticles(allArticleNames,jsonObject,imagesAndNames);
+  validateAllArticles(allArticleNames,jsonObject,imagesAndNames,hasSubItems);
   return getValidationLog();
 }
 
@@ -119,11 +185,11 @@ function updateAssets(table, fields, allArticles, assets){
 
 function validateArticleLink(cell, allArticles){
   var value = cell.getText();  
-  if (allArticles.includes(value)){
+  if (allArticles.some(article => article.name === value)){
     cell.setAttributes(validLinkStyle());
   } else {
     cell.setAttributes(invalidLinkStyle());  
-    logValidationError("Cannot find link: "+ value)   
+    logValidationError("Cannot find link: " + value);   
   }
 }
 
